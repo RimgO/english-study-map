@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>えいごマップ｜弱点別・英語上達動画集</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#fbfaf5; --sheet:#fff; --ink:#1d2b4f; --sub:#667089; --rule:#d5dcec;
+  --mark:#ffe14d; --mark-soft:#fff6c2; --red:#d8423a; --tile:#eef1f8; --tile-edge:#b9c3dc;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Sans",sans-serif;line-height:1.6}
+button,input,select{font-family:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+header{padding:26px 28px 6px;max-width:1280px;margin:0 auto}
+h1{font-family:"Klee One",serif;font-weight:600;font-size:clamp(28px,4.4vw,44px);margin:0;line-height:1.25;letter-spacing:.01em}
+h1 span{background:linear-gradient(transparent 58%,var(--mark) 58%);padding:0 .1em}
+header p{margin:8px 0 0;color:var(--sub);font-size:14px;max-width:46em}
+.wrap{display:grid;grid-template-columns:minmax(320px,440px) 1fr;gap:26px;padding:16px 28px 40px;max-width:1280px;margin:0 auto;align-items:start}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;padding:12px 14px 40px}header{padding:18px 16px 2px}}
+.mapside{position:sticky;top:10px}
+@media (max-width:900px){.mapside{position:static}}
+.maphead{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--sub);margin-bottom:2px}
+.maphead b{font-family:"Klee One",serif;font-size:17px;color:var(--ink)}
+svg#map{width:100%;height:auto;display:block}
+.hx{cursor:pointer}
+.hx polygon{fill:var(--tile);stroke:var(--tile-edge);stroke-width:1.5;transition:fill .12s}
+.hx:hover polygon{fill:var(--mark-soft)}
+.hx.sel polygon{fill:var(--mark);stroke:var(--ink);stroke-width:2.5}
+.hx text{text-anchor:middle;pointer-events:none;fill:var(--ink)}
+.hx .nm{font-size:13px;font-weight:700}
+.hx .ct{font-family:"Klee One",serif;font-size:27px}
+.hx .un{font-size:10px;fill:var(--sub)}
+.hx .thin{fill:none;stroke:var(--red);stroke-width:2;stroke-linecap:round}
+.hx .thinlbl{font-family:"Klee One",serif;font-size:12px;fill:var(--red)}
+.thinbox{margin-top:8px;border-top:2px solid var(--ink);padding-top:10px}
+.thinbox h2{font-family:"Klee One",serif;font-size:16px;margin:0 0 2px}
+.thinbox p{margin:0 0 8px;font-size:12.5px;color:var(--sub)}
+.thinrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--rule);font-size:13.5px}
+.thinrow b{flex:1}
+.thinrow em{font-style:normal;color:var(--red);font-family:"Klee One",serif}
+.btn{border:1.5px solid var(--ink);background:var(--sheet);border-radius:6px;padding:5px 12px;font-size:12.5px;font-weight:700}
+.btn:hover{background:var(--mark-soft)}
+.btn.solid{background:var(--ink);color:#fff}
+.btn.solid:hover{background:#2c3f70}
+.addbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+.addbar span{font-size:12px;color:var(--sub)}
+.panel{min-width:0}
+.title-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:12px}
+.title-row h2{font-family:"Klee One",serif;margin:0;font-size:26px}
+.title-row .count{color:var(--sub);font-size:14px}
+.title-row .clear{margin-left:auto;border:none;background:none;text-decoration:underline;font-size:13px;color:var(--ink)}
+.frow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
+.frow .lbl{font-size:12px;color:var(--sub);width:58px;flex:none;font-weight:700}
+.chip{border:1px solid var(--tile-edge);background:var(--sheet);border-radius:6px;padding:3px 10px;font-size:12.5px}
+.chip em{font-style:normal;color:var(--sub);font-size:11px;margin-left:4px}
+.chip:hover{border-color:var(--ink)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip.on em{color:#c8d1ea}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 16px}
+.tools input{flex:1;min-width:180px;border:1px solid var(--tile-edge);border-radius:6px;padding:8px 12px;font-size:14px;background:var(--sheet)}
+.tools select{border:1px solid var(--tile-edge);border-radius:6px;padding:7px 8px;font-size:13px;background:var(--sheet)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:16px 14px}
+.v{background:none;border:none;text-align:left;padding:0;display:flex;flex-direction:column;gap:6px}
+.thumb{position:relative;aspect-ratio:16/9;background:var(--tile);border:1px solid var(--tile-edge);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.v:hover .thumb{border-color:var(--ink);box-shadow:4px 4px 0 var(--mark)}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.thumb .ph{font-size:12px;color:var(--sub);padding:0 12px;text-align:center}
+.dur{position:absolute;right:5px;bottom:5px;background:var(--ink);color:#fff;font-size:11px;padding:0 6px;border-radius:3px;font-weight:700}
+.ws{position:absolute;left:5px;top:5px;background:var(--mark);font-size:11px;padding:0 6px;border-radius:3px;font-weight:700}
+.vt{font-size:13.5px;line-height:1.45;font-weight:700;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.who{font-size:12px;color:var(--sub)}
+.who b{color:var(--ink)}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:10.5px;padding:0 6px;border-radius:3px;background:var(--tile);color:var(--ink)}
+.tag.sub{background:none;border:1px solid var(--rule);color:var(--sub)}
+.tag.mine{background:var(--red);color:#fff}
+.more{display:block;margin:20px auto 0}
+.empty{color:var(--sub);padding:30px 0;grid-column:1/-1}
+.modal{position:fixed;inset:0;background:rgba(20,28,55,.62);display:none;align-items:center;justify-content:center;padding:14px;z-index:10}
+.modal.open{display:flex}
+.mbox{background:var(--paper);border-radius:8px;width:min(900px,100%);max-height:94vh;overflow:auto}
+.mplayer{aspect-ratio:16/9;background:#000;position:relative}
+.mplayer iframe{width:100%;height:100%;border:0;display:block}
+.mplayer .ext{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;text-align:center;padding:20px;background:var(--ink)}
+.mplayer .ext img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3}
+.mplayer .ext a{position:relative;background:var(--mark);color:var(--ink);text-decoration:none;font-weight:700;padding:11px 22px;border-radius:6px;font-size:15px}
+.mplayer .ext p{position:relative;margin:0;font-size:12.5px}
+.minfo{padding:14px 18px 18px}
+.minfo h3{margin:0 0 6px;font-size:17px;line-height:1.5}
+.mrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:10px}
+.mrow a{color:var(--ink);font-size:13px}
+.related{margin-top:14px}
+.related b{font-size:12.5px;color:var(--sub)}
+.related button{display:flex;justify-content:space-between;gap:10px;width:100%;border:none;border-bottom:1px dashed var(--rule);background:none;padding:7px 2px;text-align:left;font-size:13px}
+.related button:hover{background:var(--mark-soft)}
+.related button span:last-child{color:var(--sub);flex:none}
+.form{padding:18px 20px 20px}
+.form h3{font-family:"Klee One",serif;font-size:20px;margin:0 0 4px}
+.form p{margin:0 0 12px;font-size:12.5px;color:var(--sub)}
+.form label{display:block;font-size:12.5px;font-weight:700;margin:10px 0 3px}
+.form input[type=text],.form input[type=url]{width:100%;border:1px solid var(--tile-edge);border-radius:6px;padding:8px 10px;font-size:14px;background:var(--sheet)}
+.form .cats{display:flex;flex-wrap:wrap;gap:6px}
+.form .err{color:var(--red);font-size:12.5px;min-height:1.4em;margin-top:8px}
+.form .act{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.mine-list{margin-top:14px;border-top:1px solid var(--rule);padding-top:10px;font-size:12.5px}
+.mine-list div{display:flex;gap:8px;justify-content:space-between;padding:3px 0}
+.mine-list button{border:none;background:none;color:var(--red);text-decoration:underline;font-size:12px;flex:none}
+textarea#exp{width:100%;height:90px;margin-top:8px;font-size:11px;border:1px solid var(--tile-edge);border-radius:6px}
+
+.essbtn{margin-left:4px}
+#ess{max-width:860px;margin:0 auto;padding:6px 28px 50px}
+@media (max-width:900px){#ess{padding:6px 16px 40px}}
+.enav{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 22px}
+.enav a{font-size:12.5px;text-decoration:none;color:var(--ink);border:1px solid var(--tile-edge);border-radius:6px;padding:3px 10px;background:var(--sheet)}
+.enav a.on{background:var(--mark);border-color:var(--ink);font-weight:700}
+.enav a.back{border-color:var(--ink);font-weight:700}
+#ess h2{font-family:"Klee One",serif;font-size:clamp(26px,4vw,36px);margin:0 0 8px;line-height:1.3}
+#ess h2 small{font-size:15px;color:var(--sub);margin-left:10px;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500}
+#ess .lead{font-size:16px;line-height:1.9;margin:0 0 20px;max-width:40em}
+figure{margin:0 0 30px;padding:20px 22px 14px;background:var(--sheet);border:1.5px solid var(--ink);border-radius:8px}
+figcaption{font-size:13px;color:var(--sub);margin-top:12px;border-top:1px dashed var(--rule);padding-top:8px}
+figure svg{width:100%;height:auto;display:block}
+.fl{font-size:14px;font-weight:700;fill:var(--ink)}.fs{font-size:13px;fill:var(--sub)}.ft{font-size:16px;font-weight:700;fill:var(--ink);text-anchor:middle}
+.fr{font-size:14px;font-weight:700;fill:var(--red)}
+.fb{fill:var(--tile);stroke:var(--tile-edge);stroke-width:1.5}.fm{fill:var(--mark);stroke:var(--ink);stroke-width:1.5}
+.fa{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.fc{fill:none;stroke:var(--ink);stroke-width:2.5}.fd{fill:none;stroke:var(--red);stroke-width:1.6;stroke-dasharray:4 4}
+.stack{display:flex;flex-direction:column;gap:6px}
+.srow{display:flex;gap:14px;align-items:baseline;background:var(--tile);border-radius:4px;padding:9px 14px;font-size:14.5px}
+.srow b{flex:none;width:6.5em}.srow.hi,.tbl td.hi,.ladder .hi{background:var(--mark)}
+.tbl{border-collapse:collapse;width:100%;font-size:14px}
+.tbl th,.tbl td{border:1px solid var(--tile-edge);padding:8px 10px;text-align:center}
+.tbl th{background:var(--tile);font-weight:700}.tbl.ex td{font-size:17px}.tbl.ex th:first-child{text-align:left}
+.chunks{display:flex;flex-wrap:wrap;gap:8px 22px}
+.chunk{position:relative;background:var(--tile);border-radius:4px;padding:10px 12px 8px;display:flex;flex-direction:column;font-size:14.5px}
+.chunk i{font-style:normal;font-family:"Klee One",serif;color:var(--red);font-size:13px}
+.chunk span{font-size:12.5px;color:var(--sub)}
+.chunk:not(:last-child)::after{content:"";position:absolute;right:-17px;top:50%;width:10px;height:10px;border-top:2px solid var(--ink);border-right:2px solid var(--ink);transform:translateY(-50%) rotate(45deg)}
+.ladder div{background:var(--tile);border-radius:4px;padding:7px 12px;margin-bottom:6px;font-size:14px}
+.ladder p{display:flex;justify-content:space-between;margin:8px 0 0;font-size:12.5px;color:var(--sub)}
+.bars div{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:14px}
+.bars b{flex:none;width:5.5em}.bars i{height:26px;background:var(--tile);border:1.5px solid var(--tile-edge);border-radius:3px}
+.bars i.hi{background:var(--mark);border-color:var(--ink)}.bars span{font-family:"Klee One",serif;font-size:15px}
+.pt{border-top:2px solid var(--ink);padding:14px 0 20px}
+.pt h3{font-family:"Klee One",serif;font-size:20px;margin:0 0 4px}
+.pt p{margin:0 0 10px;font-size:15px;line-height:1.85;max-width:40em}
+.pt .vl button{display:flex;gap:10px;align-items:baseline;width:100%;border:none;border-bottom:1px dashed var(--rule);background:none;padding:7px 2px;text-align:left;font-size:13.5px}
+.pt .vl button:hover{background:var(--mark-soft)}
+.pt .vl .pl{flex:none;font-size:11px;font-weight:700;background:var(--ink);color:#fff;border-radius:3px;padding:0 6px}
+.pt .vl .tt{flex:1}.pt .vl .mt{flex:none;color:var(--sub);font-size:12px}
+.eend{border-top:2px solid var(--ink);padding-top:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.enote{font-size:11.5px;color:var(--sub);margin-top:18px}
+footer{padding:0 28px 30px;color:var(--sub);font-size:11.5px;max-width:1280px;margin:0 auto}
+footer a{color:var(--ink)}
+footer ul{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px 16px}
+</style>
+</head>
+<body>
+<header>
+  <h1><span>えいごマップ</span>　弱点から選ぶ英語上達動画集</h1>
+  <p>苦手なところのマスを選ぶと、要点を図でまとめた「エッセンス」と、その弱点に効く動画が出てきます。野口涼子さんの動画を先頭に、English Gym で一緒に登壇している講師の動画も載せています（全<span id="total"></span>本）。</p>
+</header>
+<div class="wrap">
+  <section class="mapside" aria-label="弱点マップ">
+    <div class="maphead"><b>弱点を選ぶ</b><span>数字は動画の本数</span></div>
+    <svg id="map" viewBox="0 0 440 322" role="group"></svg>
+    <div class="thinbox">
+      <h2>動画が少ないジャンル</h2>
+      <p>赤で囲んだマスはまだ手薄です。ここから動画を足せます。</p>
+      <div id="thin"></div>
+      <div class="addbar"><button class="btn solid" id="addbtn">動画を追加する</button><span id="minecount"></span></div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="title-row"><h2 id="ptitle">すべての動画</h2><span class="count" id="pcount"></span><button class="btn solid essbtn" id="essbtn" hidden>エッセンスを読む</button><button class="clear" id="clear" hidden>選択を解除</button></div>
+    <div class="frow"><span class="lbl">講師</span><div id="lects" class="frow" style="margin:0"></div></div>
+    <div class="frow"><span class="lbl">テーマ</span><div id="subs" class="frow" style="margin:0"></div></div>
+    <div class="tools">
+      <input id="q" type="search" placeholder="キーワードで探す（例：冠詞、シャドーイング、TOEIC）" aria-label="キーワード">
+      <select id="len" aria-label="長さ"><option value="">長さ：すべて</option><option value="0-600">10分以内の解説</option><option value="600-1800">10〜30分</option><option value="1800-99999">30分以上の講義</option></select>
+      <select id="sort" aria-label="並び順"><option value="std">野口さん優先</option><option value="short">短い順</option><option value="long">長い順</option></select>
+    </div>
+    <div class="grid" id="grid"></div>
+    <button class="btn more" id="more" hidden>もっと見る</button>
+  </section>
+</div>
+<main id="ess" hidden></main>
+<footer>カテゴリとテーマは動画タイトルと概要をもとに分類しています。動画の著作権は各権利者に帰属し、このページはリンク・埋め込みによる紹介だけを行います。データ取得日：2026-11-21
+<ul id="srclist"></ul></footer>
+
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+    <div class="mplayer" id="mplayer"></div>
+    <div class="minfo">
+      <h3 id="mtitle"></h3>
+      <div class="who" id="mwho"></div>
+      <div class="tags" id="mtags" style="margin-top:6px"></div>
+      <div class="mrow"><a id="mlink" href="#" target="_blank" rel="noopener">YouTubeで開く</a><button class="btn" id="mclose">閉じる</button></div>
+      <div class="related" id="related"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="addmodal" aria-hidden="true">
+  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="addtitle" style="width:min(560px,100%)">
+    <form class="form" id="addform">
+      <h3 id="addtitle">動画を追加する</h3>
+      <p>追加した動画はこのブラウザに保存されます。全員に見える形で載せるときは、下の「追加分をコピー」の内容をClaudeに渡してください。</p>
+      <label for="aurl">YouTubeのURL</label><input type="url" id="aurl" placeholder="https://www.youtube.com/watch?v=..." required>
+      <label for="atitle">タイトル</label><input type="text" id="atitle" required>
+      <label for="alect">講師・チャンネル名</label><input type="text" id="alect" placeholder="例：野口涼子">
+      <label for="adur">長さ（任意）</label><input type="text" id="adur" placeholder="例：12:34">
+      <label>弱点カテゴリ（タイトルから自動で選びます。直せます）</label><div class="cats" id="acats"></div>
+      <div class="err" id="aerr" role="alert"></div>
+      <div class="act"><button type="button" class="btn" id="acancel">閉じる</button><button type="submit" class="btn solid">追加する</button></div>
+      <div class="mine-list" id="minelist"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+const DATA = {"meta":{"cats":[{"k":"pron","n":"発音","d":"通じない"},{"k":"listen","n":"リスニング","d":"聞き取れない"},{"k":"speak","n":"スピーキング","d":"言葉が出ない"},{"k":"vocab","n":"語彙・表現","d":"言い方が単調"},{"k":"gram","n":"文法","d":"モヤモヤする"},{"k":"read","n":"リーディング","d":"読むのが遅い"},{"k":"write","n":"ライティング","d":"書けない"},{"k":"biz","n":"ビジネス","d":"仕事で使う"},{"k":"exam","n":"試験対策","d":"点が伸びない"},{"k":"method","n":"学習法","d":"続かない"}],"lects":[{"k":"N","n":"野口涼子"},{"k":"I","n":"飯塚まいこ"},{"k":"Y","n":"矢野茉莉子"},{"k":"O","n":"奥村きょうこ"},{"k":"T","n":"田中祐里"},{"k":"X","n":"そのほかの講師"}],"subs":["時制","冠詞・名詞","関係詞","不定詞・分詞","助動詞・仮定法","文型・品詞","前置詞","言い替え","使い分け","単語暗記","音読・シャドーイング","オンライン英会話","AI活用","挫折対策","TOEIC","英検","IELTS","Versant"],"sources":[{"n":"英語コーチRyoko まじめな英語学習チャンネル","url":"https://www.youtube.com/@ryoko368"},{"n":"Yohei Fukuma（English Gym 実践ワークショップ）","url":"https://www.youtube.com/channel/UCPBGnFPJYHkINrDbtfr9XFA"}]},"videos":[{"id":"WAUpPCU-X6k","t":"科学的な英語学習（第二言語習得研究から学ぶ）","l":"N","d":"1:23:18","s":4998,"c":["method","listen"],"g":["AI活用"],"o":0,"w":42},{"id":"yqY2jS345x4","t":"英会話は基本動詞が9割　haveやgetをもっと使いこなそう","l":"N","d":"1:27:21","s":5241,"c":["vocab","speak"],"g":["使い分け"],"o":1,"w":38},{"id":"ui9jHVYDu0Q","t":"英語の深く会話するコツ","l":"N","d":"1:09:02","s":4142,"c":["speak"],"g":[],"o":2,"w":32},{"id":"bY4M_Yo5EFE","t":"ネイティブの気持ちがわかる英語の時制","l":"N","d":"1:06:10","s":3970,"c":["gram"],"g":["時制"],"o":3,"w":28},{"id":"1lKqBDNBM8U","t":"英語の「いつも同じ言い方」を抜け出す方法","l":"N","d":"1:27:27","s":5247,"c":["vocab","speak"],"g":["言い替え"],"o":4,"w":24},{"id":"FkoYnRELqbw","t":"英語で「自分が本当に話したい事」を話す方法","l":"N","d":"1:08:06","s":4086,"c":["speak"],"g":[],"o":5,"w":20},{"id":"VIrVX6969No","t":"aなの？theなの？ 英語の冠詞","l":"N","d":"1:17:25","s":4645,"c":["gram"],"g":["冠詞・名詞"],"o":6,"w":16},{"id":"6HMdGzYiU64","t":"英単語の覚え方　単語だけは絶対に裏切らない","l":"N","d":"1:08:34","s":4114,"c":["vocab"],"g":["単語暗記"],"o":7,"w":13},{"id":"NnT5gMYIj3U","t":"結局『英語を話せる』って何？ スピーキング上達、5つのステップ","l":"N","d":"1:06:43","s":4003,"c":["speak"],"g":[],"o":8,"w":10},{"id":"UN32Tjg-s2g","t":"Let it go のitって何？！便利なitの使いこなし方","l":"N","d":"1:05:33","s":3933,"c":["gram"],"g":["文型・品詞"],"o":9,"w":7},{"id":"jBt_eo7l6vg","t":"英会話の練習は\"ひとりごと\"が最強！ いつでもどこでも、ひとりでもできる","l":"N","d":"56:55","s":3415,"c":["speak"],"g":[],"o":10,"w":4},{"id":"Ldr_t4qf738","t":"１トピックで長く話せる方法","l":"N","d":"1:01:43","s":3703,"c":["speak"],"g":[],"o":11,"w":1},{"id":"UKy7VLWVNrs","t":"英語学習を成功させる3つのコツ","l":"N","d":"58:23","s":3503,"c":["method"],"g":[],"o":12},{"id":"7f8nZB7ltRw","t":"英語学習で挫折する原因★テキストが実践に結び付かない","l":"N","d":"6:27","s":387,"c":["method"],"g":["挫折対策"],"o":13},{"id":"Cpa5RJDMGVs","t":"英語学習で挫折する原因★それ、簡単すぎるか難しすぎる？","l":"N","d":"3:37","s":217,"c":["method"],"g":["挫折対策"],"o":14},{"id":"F47YwaMt9ow","t":"英語学習で挫折する原因★話したいことがない！","l":"N","d":"7:15","s":435,"c":["method","speak"],"g":["挫折対策"],"o":15},{"id":"wBDLsV_vjPk","t":"英語の時制って何種類あるか知っていますか？","l":"N","d":"5:09","s":309,"c":["gram"],"g":["時制"],"o":16},{"id":"Yr3pm2jiQLw","t":"5文型でモヤモヤしている人へ。本当は〇文型で、すっきり！","l":"N","d":"5:47","s":347,"c":["gram"],"g":["文型・品詞"],"o":17},{"id":"_e1xGfQmJoU","t":"動名詞とto不定詞の違い","l":"N","d":"8:01","s":481,"c":["gram"],"g":["不定詞・分詞"],"o":18},{"id":"wNesP2XiFHs","t":"はじめて出てくるのにtheになるとき★play the guitarのtheって何？","l":"N","d":"7:21","s":441,"c":["gram"],"g":["冠詞・名詞"],"o":19},{"id":"yeLwuUpmRNw","t":"自信ある？比較級 \"than\" の後ろの代名詞","l":"N","d":"5:15","s":315,"c":["gram"],"g":["文型・品詞"],"o":20},{"id":"ECieVnzRV7Y","t":"「できた」ときのcouldとwas able toの使い分け","l":"N","d":"5:04","s":304,"c":["gram"],"g":["助動詞・仮定法"],"o":21},{"id":"jduWkCOoWtM","t":"現在分詞★the running boyってあり？なし？","l":"N","d":"7:50","s":470,"c":["gram"],"g":["不定詞・分詞"],"o":22},{"id":"OgIEef8b0ms","t":"数えられる？数えられない？可算と不可算のほんとのところ","l":"N","d":"6:44","s":404,"c":["gram"],"g":["冠詞・名詞"],"o":23},{"id":"2XjWCqaFzTI","t":"意外とシンプル！仮定法の作り方（仮定法過去・仮定法過去完了）","l":"N","d":"8:28","s":508,"c":["gram"],"g":["助動詞・仮定法"],"o":24},{"id":"DfpfZ55aXw4","t":"オンライン英会話のコツ★先生ばっかり話しているとき","l":"N","d":"6:47","s":407,"c":["speak"],"g":["オンライン英会話"],"o":25},{"id":"gP7z3DpYnOU","t":"リーディングのコツ★「前から読める」ようになるためには？","l":"N","d":"16:43","s":1003,"c":["read"],"g":[],"o":26},{"id":"MlqDoLLQQhQ","t":"助動詞ってそもそも何？","l":"N","d":"5:06","s":306,"c":["gram"],"g":["助動詞・仮定法"],"o":27},{"id":"9i0v-n2UPSM","t":"be動詞の使い方★今日から迷わない！","l":"N","d":"4:59","s":299,"c":["gram"],"g":["文型・品詞"],"o":28},{"id":"5B8JXMtqpkA","t":"TOEICリーディングの直前対策！","l":"N","d":"8:44","s":524,"c":["exam","read"],"g":["TOEIC"],"o":29},{"id":"0hmDs_p6CqI","t":"文法・語彙・発音、何をどれだけやるのがいいの？","l":"N","d":"10:22","s":622,"c":["method"],"g":[],"o":30},{"id":"j3BZAwozIXI","t":"to不定詞の形容詞的用法、使ってみよう！","l":"N","d":"4:34","s":274,"c":["gram"],"g":["不定詞・分詞"],"o":31},{"id":"iaWqWH0T2lM","t":"イギリス英語発音、アメリカ英語発音、どっちがいいの？！","l":"N","d":"9:40","s":580,"c":["pron"],"g":[],"o":32},{"id":"_bVTfxF5FIo","t":"TOEIC受験2022年の個人的な手ごたえです！","l":"N","d":"9:10","s":550,"c":["exam"],"g":["TOEIC"],"o":33},{"id":"XvdeEej5pvM","t":"ひとつの話をふくらませるコツ★ひとネタで10文話してみよう！","l":"N","d":"5:27","s":327,"c":["speak"],"g":[],"o":34},{"id":"XDRjNLTcrQg","t":"スピーキングの壁★練習したはずなのに・・・","l":"N","d":"5:59","s":359,"c":["speak"],"g":[],"o":35},{"id":"0DRb2Wu-FxY","t":"誰も教えてくれなかった★IELTSスピーキングのコツ","l":"N","d":"7:02","s":422,"c":["exam","speak"],"g":["IELTS"],"o":36},{"id":"4EkJVDTsGW8","t":"気持ちがアガる！英語のアファメーション★人生編","l":"N","d":"3:41","s":221,"c":["vocab"],"g":[],"o":37},{"id":"KuCh1ozG69g","t":"めっちゃアガるよ！英語のアファメーション7個","l":"N","d":"4:24","s":264,"c":["vocab"],"g":[],"o":38},{"id":"AKcj2BYy69o","t":"学校で習った？！関係代名詞whichとthat","l":"N","d":"8:04","s":484,"c":["gram"],"g":["関係詞"],"o":39},{"id":"VUjBQvq_GK0","t":"料理の英語、決定版！切る・焼く・混ぜるなどなど♪","l":"N","d":"5:19","s":319,"c":["vocab"],"g":[],"o":40},{"id":"n9rJs9BESEg","t":"無料プレゼント★めちゃくちゃ役に立つ同義語リストの使い方","l":"N","d":"6:27","s":387,"c":["vocab"],"g":["言い替え"],"o":41},{"id":"Q-45P2SYdVU","t":"VersantスピーキングテストのパートB徹底解説！何語の文が出るの？そして練習方法は？","l":"N","d":"11:07","s":667,"c":["exam","speak"],"g":["Versant"],"o":42},{"id":"LE689hZXdJ0","t":"Yesの言い替え★40種類も！","l":"N","d":"8:06","s":486,"c":["vocab"],"g":["言い替え"],"o":43},{"id":"mmXahMeJpqM","t":"英語名言と小話シリーズ①そもそもの目的は何だっけ？","l":"N","d":"9:31","s":571,"c":["method"],"g":[],"o":44},{"id":"gjMFNBPSZCA","t":"どんな英語学習が向いているのかな？比較してみました^^","l":"N","d":"6:00","s":360,"c":["method"],"g":[],"o":45},{"id":"EnSnodAY7RI","t":"I don't know.の言い替え★たくさんご紹介します！","l":"N","d":"11:57","s":717,"c":["vocab"],"g":["言い替え"],"o":46},{"id":"MOEqwaMxboU","t":"英語学習の目標の立て方3選！★目的と性格で選んでね♡","l":"N","d":"7:49","s":469,"c":["method"],"g":[],"o":47},{"id":"wiKgh4ewOQg","t":"TOEIC900点超えが安定しない方必見！リーディングだけで950点超える学習法","l":"N","d":"6:11","s":371,"c":["exam","read"],"g":["TOEIC"],"o":48},{"id":"fD-hMAFOEtY","t":"発音に即効★すぐに使える3つのコツ！","l":"N","d":"10:29","s":629,"c":["pron"],"g":[],"o":49},{"id":"YbcmIazd2PM","t":"【永久保存版】I thinkだけじゃない！「思う」の言い替え48種類も！","l":"N","d":"6:42","s":402,"c":["vocab"],"g":["言い替え"],"o":50},{"id":"A25a_0OMkGY","t":"Have you ～?と、Have you ever～?の違い、わかりますか？","l":"N","d":"3:56","s":236,"c":["gram"],"g":["時制"],"o":51},{"id":"3TeYMAQrqoA","t":"問題集の使い倒し方★同じ問題を何度も間違えてしまうあなたへ！","l":"N","d":"7:53","s":473,"c":["method","exam"],"g":[],"o":52},{"id":"bRLMbQWZTgU","t":"You're welcomeだけじゃない！どういたしましての言い方40種以上！","l":"N","d":"7:41","s":461,"c":["vocab"],"g":["言い替え"],"o":53},{"id":"rxF0QOjusx0","t":"Thank you だけじゃない♡感謝の伝え方25種類も^^","l":"N","d":"6:47","s":407,"c":["vocab"],"g":["言い替え"],"o":54},{"id":"s8ju_dj8Ynw","t":"意外と難しい★英単語帳のチェックの仕方","l":"N","d":"6:32","s":392,"c":["vocab"],"g":["単語暗記"],"o":55},{"id":"fcVr-W9-jJM","t":"英語の試験に必要な3つの力！","l":"N","d":"9:24","s":564,"c":["exam"],"g":[],"o":56},{"id":"Rr-TrAcYBHs","t":"謎深い！過去完了形の使い方","l":"N","d":"11:16","s":676,"c":["gram"],"g":["時制"],"o":57},{"id":"USm5WuNrsfw","t":"TOEICが独学におすすめの理由5つ＆おすすめしない理由3つ","l":"N","d":"14:20","s":860,"c":["exam"],"g":["TOEIC"],"o":58},{"id":"ZVG_7rBrZPA","t":"リスニング上達のための8要素！","l":"N","d":"14:22","s":862,"c":["listen"],"g":[],"o":59},{"id":"FxoJzkmn7tw","t":"どうして英語の勉強が必要かわからない！という方へ。","l":"N","d":"8:57","s":537,"c":["method"],"g":[],"o":60},{"id":"4U3XaiCu9PM","t":"完全版★ここまでやってね！瞬間英作文の練習の仕方","l":"N","d":"21:16","s":1276,"c":["speak"],"g":["音読・シャドーイング"],"o":61},{"id":"bvg18q-m4uI","t":"独学したい方へ。教材選びのコツとは？","l":"N","d":"11:11","s":671,"c":["method"],"g":[],"o":62},{"id":"Wb-tTB0F05c","t":"映画を字幕なしで見たいという方へ。映画を使った学習法をご紹介します^^","l":"N","d":"10:08","s":608,"c":["listen"],"g":[],"o":63},{"id":"9Udf7K7CwGY","t":"IELTSスピーキング、目指せ7.0！接続詞7種類^^","l":"N","d":"9:12","s":552,"c":["exam","speak"],"g":["IELTS"],"o":64},{"id":"H8XSK2vmNq4","t":"目指せIELTS　7.0！すぐに使えるライティングのコツ5つ","l":"N","d":"9:08","s":548,"c":["exam","write"],"g":["IELTS"],"o":65},{"id":"qjdcjCxnFO4","t":"スポーツの言い方★play, do, goの使い分け","l":"N","d":"6:59","s":419,"c":["vocab"],"g":["使い分け"],"o":66},{"id":"tFNCjQv4r0o","t":"文法なし、語彙なしで英語が身につくのか？という話","l":"N","d":"9:23","s":563,"c":["method"],"g":[],"o":67},{"id":"XSrzJuzcWss","t":"ing形？to不定詞？意味が変わる動詞・変わらない動詞を一挙公開！","l":"N","d":"12:34","s":754,"c":["gram"],"g":["不定詞・分詞"],"o":68},{"id":"VKrbt1mHPBg","t":"たったこれだけ！each, every, allの使い分け","l":"N","d":"5:22","s":322,"c":["gram"],"g":["冠詞・名詞"],"o":69},{"id":"isYqfAP3vFU","t":"ライティングにも使える！「veryなんとか」の同義語15連発！","l":"N","d":"11:34","s":694,"c":["vocab","write"],"g":["言い替え"],"o":70},{"id":"IJBHe3fBF_8","t":"図々しいthe、使いこなしてますか？theがぐいぐい来る理由","l":"N","d":"4:27","s":267,"c":["gram"],"g":["冠詞・名詞"],"o":71},{"id":"pJ4nrowFJq8","t":"英語学習を始めたいけど、迷っているという全ての方必見！！","l":"N","d":"13:08","s":788,"c":["method"],"g":[],"o":72},{"id":"WlJs2c4706o","t":"リスニング練習の定番、ディクテーションの手順を超具体的にお伝えします。","l":"N","d":"12:22","s":742,"c":["listen"],"g":[],"o":73},{"id":"sqQzMh50qMM","t":"英検準1級ライティング、まずはここから始めよう！","l":"N","d":"11:45","s":705,"c":["exam","write"],"g":["英検"],"o":74},{"id":"1mPFl7uXDMU","t":"恥を忍んで！（笑）英語口筋トレです。顔痩せにもなるよ！","l":"N","d":"6:07","s":367,"c":["pron"],"g":[],"o":75},{"id":"_mcv8eg4TEg","t":"英文法のモヤモヤ解決法！英語で文法用語を検索してみると・・・","l":"N","d":"4:55","s":295,"c":["gram","method"],"g":[],"o":76},{"id":"Mp3lLSw4R60","t":"場所のon, in, atの使い分けのモヤモヤ解消★決定版！","l":"N","d":"6:29","s":389,"c":["gram"],"g":["前置詞"],"o":77},{"id":"G-idd4Ukfrc","t":"2つの似た言い回しの違いを調べたいとき★中上級編^^","l":"N","d":"4:57","s":297,"c":["vocab","method"],"g":["使い分け"],"o":78},{"id":"ClMdYtboMns","t":"比較級のtallerとfasterの根本的な違いわかりますか？一瞬でわかる形容詞と副詞の違い！","l":"N","d":"7:51","s":471,"c":["gram"],"g":["文型・品詞"],"o":79},{"id":"-uZUMNthBI0","t":"分詞を使いこなそう！会話で使う分詞はけっこう少ないよ^^","l":"N","d":"6:38","s":398,"c":["gram"],"g":["不定詞・分詞"],"o":80},{"id":"94kgAOk6yWY","t":"これで完璧！関係代名詞のwhat、ちゃんと理解していますか？","l":"N","d":"10:51","s":651,"c":["gram"],"g":["関係詞"],"o":81},{"id":"JB2aTYJ8vcg","t":"シャドーイングって何のためにやっているの？聞くため？話すため？","l":"N","d":"13:09","s":789,"c":["listen","speak"],"g":["音読・シャドーイング"],"o":82},{"id":"LxVzQ73GlNg","t":"英語コーチングが成功する人の特徴12！英語コーチの本音","l":"N","d":"15:04","s":904,"c":["method"],"g":[],"o":83},{"id":"GR7OsIVZIQY","t":"英検1級ライティング、便利表現集^^　準1級にも使えるよ！","l":"N","d":"4:59","s":299,"c":["exam","write"],"g":["英検"],"o":84},{"id":"AOaLJ7D_D9E","t":"Versantの発音・流暢さの点が爆上がり！するコツ","l":"N","d":"9:09","s":549,"c":["exam","pron"],"g":["Versant"],"o":85},{"id":"F6kq2Avav0E","t":"日本人英語の発音で話して何が悪いの？という疑問にお答えします。","l":"N","d":"5:44","s":344,"c":["pron"],"g":[],"o":86},{"id":"mpVjhd2ORz0","t":"英語学習は短期集中がおすすめ！細く長く勉強するのはなんでダメ？","l":"N","d":"5:01","s":301,"c":["method"],"g":[],"o":87},{"id":"jxQEWWWILng","t":"間違えやすい自動詞・他動詞を一挙公開！★これで完璧","l":"N","d":"7:23","s":443,"c":["gram"],"g":["文型・品詞"],"o":88},{"id":"6NMJCe7TOKQ","t":"関係代名詞の作り方の基本！★国語が大事だよ。","l":"N","d":"7:24","s":444,"c":["gram"],"g":["関係詞"],"o":89},{"id":"qJmK6yIbWd4","t":"音読やるならここまでやって！TOEICパート4で完璧音読練習してみた。","l":"N","d":"9:36","s":576,"c":["speak","listen"],"g":["音読・シャドーイング"],"o":90},{"id":"GaAZTtoYaR4","t":"たったこれだけ！関係代名詞を省略していいとき、ダメなとき。","l":"N","d":"5:07","s":307,"c":["gram"],"g":["関係詞"],"o":91},{"id":"Vsz9RNvyiIU","t":"英検1級に2ヶ月で合格した勉強法を全部公開！","l":"N","d":"10:36","s":636,"c":["exam"],"g":["英検"],"o":92},{"id":"Wt2oyvEv6U4","t":"【決定版^^】オンライン英会話★ネタ作りと練習方法","l":"N","d":"8:03","s":483,"c":["speak"],"g":["オンライン英会話"],"o":93},{"id":"vNGZuCm5iU0","t":"その英語学習、目的に合っていますか？手段と目的を取り違えている人へ！","l":"N","d":"6:35","s":395,"c":["method"],"g":[],"o":94},{"id":"AggPoyf6PD0","t":"独学応援！★英語日記を自分で添削する方法3つ","l":"N","d":"4:22","s":262,"c":["write"],"g":[],"o":95},{"id":"ZpvVXUscMdY","t":"発音チェックに必須★最強の書き起こしツールOtterを紹介します！","l":"N","d":"3:01","s":181,"c":["pron"],"g":[],"o":96},{"id":"LE2-eFV0Szs","t":"in the morningのtheって何？全体を区切るtheの使い方","l":"N","d":"4:12","s":252,"c":["gram"],"g":["冠詞・名詞"],"o":97},{"id":"sa0Ls11oeU8","t":"1000時間学習することの根拠。学習時間を無駄にしないための工夫とは？","l":"N","d":"9:45","s":585,"c":["method"],"g":[],"o":98},{"id":"tCOyPxkUgGY","t":"オンライン英会話の使い方★毎日やるだけじゃ上達しない理由","l":"N","d":"7:57","s":477,"c":["speak"],"g":["オンライン英会話"],"o":99},{"id":"GJrcOEGp-VM","t":"TOEIC公式問題集を使い倒そう！リーディング編","l":"N","d":"11:25","s":685,"c":["exam","read"],"g":["TOEIC"],"o":100},{"id":"COquSW6dsSs","t":"「いくらかの」のsomeってどうして必要なの？","l":"N","d":"6:47","s":407,"c":["gram"],"g":["冠詞・名詞"],"o":101},{"id":"d9ZgcxxFWqs","t":"TOEIC公式問題集を使って、リスニング力を上げる練習方法","l":"N","d":"8:57","s":537,"c":["exam","listen"],"g":["TOEIC"],"o":102},{"id":"_P9KfvAfXS4","t":"TOEICの教材いろいろ★一気に紹介します！","l":"N","d":"12:10","s":730,"c":["exam"],"g":["TOEIC"],"o":103},{"id":"kyySMHHIkKw","t":"英語の名詞は、なんでも動詞にしていいってほんと？！","l":"N","d":"5:24","s":324,"c":["gram","vocab"],"g":["文型・品詞"],"o":104},{"id":"ZDDReH9zd8s","t":"【神解説！！】現在完了進行形★単なる現在完了形との違いを解説します！","l":"N","d":"10:25","s":625,"c":["gram"],"g":["時制"],"o":105},{"id":"8Kn96kA9_RU","t":"未来進行形が気になる！「なりゆき」って何？！","l":"N","d":"8:00","s":480,"c":["gram"],"g":["時制"],"o":106},{"id":"yVfqsBdipvc","t":"初心者の方は必見☆何よりも大事！主語と動詞。","l":"N","d":"5:09","s":309,"c":["gram"],"g":["文型・品詞"],"o":107},{"id":"dwXIxJgx9UY","t":"英語に文法って必要？フレーズ暗記じゃダメですか？","l":"N","d":"5:20","s":320,"c":["gram","method"],"g":[],"o":108},{"id":"wf1YEzlJpOY","t":"病気の冠詞★have a coldのaって何なの？","l":"N","d":"6:11","s":371,"c":["gram"],"g":["冠詞・名詞"],"o":109},{"id":"U-dOKlR4Rqw","t":"話すの4つの動詞、talk, speak, tell, sayの違いを解説します^^","l":"N","d":"7:55","s":475,"c":["vocab"],"g":["使い分け"],"o":110},{"id":"EYuTF6RuWoU","t":"未来完了進行形って何？！日常会話でも使います♪","l":"N","d":"5:50","s":350,"c":["gram"],"g":["時制"],"o":111},{"id":"u_ERjtATZ0M","t":"30歳から英語を始めて、めっちゃお世話になった本、3選！","l":"N","d":"9:16","s":556,"c":["method"],"g":[],"o":112},{"id":"cgn3HF11c00","t":"品詞ってどうして大事なの？わからないと、一生モヤモヤしちゃうよ～","l":"N","d":"4:30","s":270,"c":["gram"],"g":["文型・品詞"],"o":113},{"id":"58pni7XQJhA","t":"英語の受動態ってどんなときに使うの？という疑問に答えます。","l":"N","d":"6:50","s":410,"c":["gram"],"g":["文型・品詞"],"o":114},{"id":"W0vWiS2-zXQ","t":"現在完了形①過去の出来事なのに現在完了形を使う、その心は？","l":"N","d":"5:34","s":334,"c":["gram"],"g":["時制"],"o":115},{"id":"wkGpO8Gtvxk","t":"現在完了形②そもそもなんのため？過去形にはできないこと。","l":"N","d":"5:42","s":342,"c":["gram"],"g":["時制"],"o":116},{"id":"RKu7OUoaTaE","t":"現在完了形③継続用法★おうち用法をマスターしよう！","l":"N","d":"5:18","s":318,"c":["gram"],"g":["時制"],"o":117},{"id":"1I1dTw91YFA","t":"現在完了形④経験用法★ハワイ用法をマスターしよう！","l":"N","d":"8:03","s":483,"c":["gram"],"g":["時制"],"o":118},{"id":"iGpiztCJ4rw","t":"現在完了形⑤完了用法★宿題用法をマスターしよう！","l":"N","d":"6:35","s":395,"c":["gram"],"g":["時制"],"o":119},{"id":"8u9KKAVtezE","t":"VERSANT、初受験前の人は必見！すぐに使えるコツもあります。","l":"N","d":"9:14","s":554,"c":["exam"],"g":["Versant"],"o":120},{"id":"W57le8Te3rY","t":"なぜ通じない？！日本人が気づいていない英語発音の「子音」","l":"I","d":"1:22:25","s":4945,"c":["pron"],"g":[],"o":121,"w":40},{"id":"mIXs-dtudZA","t":"英語リスニングは｢音声変化｣で攻略！","l":"I","d":"1:24:29","s":5069,"c":["listen","pron"],"g":[],"o":122,"w":36},{"id":"q3lH8tLc--4","t":"発音できたらかっこいい! 「T」で変わるアメリカ英語発音の世界","l":"I","d":"1:04:05","s":3845,"c":["pron"],"g":[],"o":123,"w":31},{"id":"b0v-PgquGi8","t":"今さら聞けない!? 英語発音の「LとR」を完全攻略","l":"I","d":"58:18","s":3498,"c":["pron"],"g":[],"o":124,"w":27},{"id":"y4acexhYgjw","t":"もう聞き返されない！英語発音の母音と舌の定位置","l":"I","d":"1:05:22","s":3922,"c":["pron"],"g":[],"o":125,"w":23},{"id":"h7GJeXYdyh0","t":"今からでも遅くない！呼吸とリズムですぐにかっこよくなる英語発音のコツ","l":"I","d":"1:15:37","s":4537,"c":["pron"],"g":[],"o":126,"w":19},{"id":"iHHCsqdjqfc","t":"空気を読むビジネス英語","l":"Y","d":"1:28:01","s":5281,"c":["biz"],"g":[],"o":127,"w":39},{"id":"U0xErFqnl9w","t":"英語で“感じよく伝える”交渉術","l":"Y","d":"1:11:19","s":4279,"c":["biz"],"g":[],"o":128,"w":34},{"id":"FdotCwhCF3s","t":"英語会議のサバイバル・リスニング戦略","l":"Y","d":"1:13:08","s":4388,"c":["biz","listen"],"g":[],"o":129,"w":30},{"id":"C5d3zRMJeEY","t":"英語プレゼン完全攻略！すべらない構成と必須フレーズ","l":"Y","d":"1:10:15","s":4215,"c":["biz"],"g":[],"o":130,"w":26},{"id":"Q776ZoaCj9w","t":"英語会議を制する！実践フレーズと進め方のコツ","l":"Y","d":"1:06:31","s":3991,"c":["biz"],"g":[],"o":131,"w":18},{"id":"B-PKGMmbPEM","t":"グローバルビジネスで通用する！英語のメール完全ガイド","l":"Y","d":"1:03:44","s":3824,"c":["biz","write"],"g":[],"o":132,"w":15},{"id":"reTjjoUzEzA","t":"ビジネスパーソンのための洗練シンプル英語 グロービッシュ","l":"Y","d":"1:05:36","s":3936,"c":["biz","speak"],"g":[],"o":133,"w":12},{"id":"mcni00mYITQ","t":"TOEIC公式問題集を使ったスピーキング練習","l":"Y","d":"58:23","s":3503,"c":["speak","exam"],"g":["TOEIC"],"o":134,"w":9},{"id":"1-9LavbM9Ao","t":"実は誤解されている ! 日本人の曖昧な英語を分かりやすく伝える方法","l":"Y","d":"59:40","s":3580,"c":["speak","biz"],"g":[],"o":135,"w":6},{"id":"7kisVbgbttM","t":"英語が論理的に分かりやすく伝わるOREO話法","l":"Y","d":"1:04:00","s":3840,"c":["speak","biz"],"g":[],"o":136,"w":3},{"id":"CWH81f0Iw-M","t":"沈黙を破る！つなぎフレーズで英会話をスムーズに","l":"O","d":"1:30:43","s":5443,"c":["speak"],"g":[],"o":137,"w":41},{"id":"NuwnFYUpNUE","t":"「インド英語」（中条院香様＋奥村きょうこ様）","l":"O","d":"1:01:57","s":3717,"c":["listen"],"g":[],"o":138,"w":37},{"id":"-dJejYVA70E","t":"英会話のラリーを続けるコツ","l":"O","d":"1:04:19","s":3859,"c":["speak"],"g":[],"o":139,"w":17},{"id":"gUzCzZnXbvw","t":"英語リスニングのコツ　読めるのに聞けない理由","l":"O","d":"1:02:20","s":3740,"c":["listen"],"g":[],"o":140,"w":14},{"id":"HHYJvKsKu4c","t":"無生物主語を使った英文の作り方 Part 2 実践編","l":"O","d":"56:56","s":3416,"c":["speak","gram"],"g":["文型・品詞"],"o":141,"w":11},{"id":"u5y8DtP1Gqk","t":"AI英会話はこんなにすごい！AIと英会話するコツ","l":"O","d":"1:00:15","s":3615,"c":["speak","method"],"g":["AI活用"],"o":142,"w":8},{"id":"eCNoarCH9v4","t":"一気に英語らしくなる無生物主語の使い方 たまには“人\"以外を主語にしてみよう","l":"O","d":"43:01","s":2581,"c":["speak","gram"],"g":["文型・品詞"],"o":143,"w":5},{"id":"q3A4lciS9xs","t":"どんな日本語も簡単な英語で話す方法","l":"O","d":"59:49","s":3589,"c":["speak"],"g":[],"o":144,"w":2},{"id":"bx3oPEQ50mg","t":"初心者の英会話","l":"T","d":"1:20:14","s":4814,"c":["speak"],"g":[],"o":145,"w":35},{"id":"PiqjXBmgxJM","t":"独学じゃ限界かも？オンライン英会話の正しい使い方（海渡寛記様ほか）","l":"X","d":"56:25","s":3385,"c":["speak"],"g":["オンライン英会話"],"o":146},{"id":"ZMVT22fqSWM","t":"あなたの英語をワンランク上に変える！ ビジネス英語で英作文トレーニング（海渡寛記様）","l":"X","d":"1:03:24","s":3804,"c":["biz","write"],"g":[],"o":147},{"id":"aF-ixqPkgxE","t":"英語×ウェルビーイング＝タイパ英語（河東田美恵様）","l":"X","d":"58:31","s":3511,"c":["method"],"g":[],"o":148},{"id":"zzWk7O7B2LI","t":"『英語でキャッチボール三往復以上』コツのコツ（土肥妙子様）","l":"X","d":"50:42","s":3042,"c":["speak"],"g":[],"o":149},{"id":"_iZ2jw46oc0","t":"AIアバターが英語学習の未来を変える（椎名陽介様）","l":"X","d":"37:52","s":2272,"c":["method"],"g":["AI活用"],"o":150},{"id":"NOB2jwC_sQs","t":"ChatGPT英語活用とカスタムボット（伊東雅人様）","l":"X","d":"1:01:29","s":3689,"c":["method"],"g":["AI活用"],"o":151},{"id":"KUyVpt0LRRA","t":"効果を実感できる! 英語が話せるようになる本当の勉強法（笹部秀雄様）","l":"X","d":"57:45","s":3465,"c":["method","speak"],"g":[],"o":152},{"id":"1YUeGd0CmHI","t":"ストアカ日本一英語講師による超絶時短英語教室（根岸貴規様）","l":"X","d":"1:02:16","s":3736,"c":["method"],"g":[],"o":153}]};
+const M = DATA.meta, BASE = DATA.videos;
+const CN = Object.fromEntries(M.cats.map(c=>[c.k,c.n]));
+const LN = Object.fromEntries(M.lects.map(l=>[l.k,l]));
+const THIN = 12, PAGE = 24, KEY = 'eigomap-added-v1';
+const CAN_EMBED = location.protocol==='file:' || /github\.io$|localhost|127\.0\.0\.1/.test(location.hostname);
+let mine = [];
+try{ mine = JSON.parse(localStorage.getItem(KEY)||'[]'); if(!Array.isArray(mine)) mine=[]; }catch(e){ mine=[]; }
+function saveMine(){ try{ localStorage.setItem(KEY, JSON.stringify(mine)); }catch(e){} }
+function all(){ return BASE.concat(mine); }
+const st = {cat:null, lects:new Set(), sub:null, q:'', len:'', sort:'std', shown:PAGE};
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function lectName(v){ return v.l==='Z' ? (v.h||'追加した動画') : LN[v.l].n; }
+
+// ---------- マップ（六角形） ----------
+const POS = {pron:[110,66],listen:[220,66],speak:[330,66],vocab:[55,161],gram:[165,161],read:[275,161],write:[385,161],biz:[110,256],exam:[220,256],method:[330,256]};
+const R = 60;
+function hexPts(cx,cy){ let p=[]; for(let i=0;i<6;i++){ const a=Math.PI/180*(60*i-90); p.push((cx+R*Math.cos(a)).toFixed(1)+','+(cy+R*Math.sin(a)).toFixed(1)); } return p.join(' '); }
+function pass(v,ignoreCat){
+  if(!ignoreCat && st.cat && !v.c.includes(st.cat)) return false;
+  if(st.lects.size && !st.lects.has(v.l)) return false;
+  if(st.sub && !(v.g||[]).includes(st.sub)) return false;
+  if(st.len){ const [a,b]=st.len.split('-').map(Number); if(!v.s||v.s<a||v.s>=b) return false; }
+  if(st.q){ const hay=(v.t+' '+v.c.map(c=>CN[c]).join(' ')+' '+(v.g||[]).join(' ')+' '+lectName(v)).toLowerCase(); if(!st.q.toLowerCase().split(/\s+/).every(w=>hay.includes(w))) return false; }
+  return true;
+}
+function counts(filtered){ const c={}; for(const v of all()){ if(filtered && !pass(v,true)) continue; for(const k of v.c) c[k]=(c[k]||0)+1; } return c; }
+function drawMap(){
+  const svg=document.getElementById('map'), cnt=counts(true), tot=counts(false);
+  let h='';
+  for(const c of M.cats){
+    const [x,y]=POS[c.k], n=cnt[c.k]||0, thin=(tot[c.k]||0)<THIN;
+    h+=`<g class="hx${st.cat===c.k?' sel':''}" data-k="${c.k}" tabindex="0" role="button" aria-pressed="${st.cat===c.k}" aria-label="${c.n} ${n}本${thin?'（手薄）':''}">
+      <polygon points="${hexPts(x,y)}"/>
+      ${thin?`<ellipse class="thin" cx="${x}" cy="${y+2}" rx="47" ry="40" transform="rotate(-8 ${x} ${y})"/><text class="thinlbl" x="${x+30}" y="${y-36}" transform="rotate(-8 ${x} ${y})">手薄</text>`:''}
+      <text class="nm" x="${x}" y="${y-13}">${c.n}</text>
+      <text class="ct" x="${x}" y="${y+18}">${n}</text>
+      <text class="un" x="${x}" y="${y+33}">${esc(c.d)}</text></g>`;
+  }
+  svg.innerHTML=h;
+  svg.querySelectorAll('.hx').forEach(g=>{
+    const k=g.dataset.k;
+    g.onclick=()=>selectCat(k);
+    g.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectCat(k); } };
+  });
+  const tb=document.getElementById('thin'); tb.innerHTML='';
+  const thinCats=M.cats.filter(c=>(tot[c.k]||0)<THIN).sort((a,b)=>(tot[a.k]||0)-(tot[b.k]||0));
+  if(!thinCats.length) tb.innerHTML='<div class="thinrow">いまは手薄なジャンルはありません。</div>';
+  for(const c of thinCats){
+    const d=document.createElement('div'); d.className='thinrow';
+    d.innerHTML=`<b>${c.n}</b><em>${tot[c.k]||0}本</em>`;
+    const b=document.createElement('button'); b.className='btn'; b.textContent='ここに追加'; b.onclick=()=>openAdd(c.k);
+    d.appendChild(b); tb.appendChild(d);
+  }
+  document.getElementById('minecount').textContent = mine.length? `自分で追加：${mine.length}本`:'';
+}
+function selectCat(k){ st.cat = st.cat===k?null:k; st.shown=PAGE; render(); }
+
+// ---------- フィルタ ----------
+function buildFilters(){
+  const le=document.getElementById('lects'); le.innerHTML='';
+  const V=all();
+  for(const l of M.lects.concat(mine.length?[{k:'Z',n:'追加した動画'}]:[])){
+    const n=V.filter(v=>v.l===l.k).length; if(!n) continue;
+    const b=document.createElement('button'); b.className='chip'+(st.lects.has(l.k)?' on':''); b.innerHTML=`${esc(l.n)}<em>${n}</em>`;
+    b.setAttribute('aria-pressed',st.lects.has(l.k));
+    b.onclick=()=>{ st.lects.has(l.k)?st.lects.delete(l.k):st.lects.add(l.k); st.shown=PAGE; buildFilters(); render(); };
+    le.appendChild(b);
+  }
+  const su=document.getElementById('subs'); su.innerHTML='';
+  for(const s of M.subs){
+    const b=document.createElement('button'); b.className='chip'+(st.sub===s?' on':''); b.textContent=s;
+    b.setAttribute('aria-pressed',st.sub===s);
+    b.onclick=()=>{ st.sub = st.sub===s?null:s; st.shown=PAGE; buildFilters(); render(); };
+    su.appendChild(b);
+  }
+}
+function filtered(){
+  const l=all().filter(v=>pass(v,false));
+  const f={std:(a,b)=>a.o-b.o, short:(a,b)=>(a.s||1e9)-(b.s||1e9), long:(a,b)=>(b.s||0)-(a.s||0)}[st.sort];
+  return l.sort(f);
+}
+function tagsHTML(v){ return (v.m?'<span class="tag mine">追加</span>':'')+v.c.map(c=>`<span class="tag">${CN[c]}</span>`).join('')+(v.g||[]).map(g=>`<span class="tag sub">${esc(g)}</span>`).join(''); }
+function whoHTML(v){ return `<b>${esc(lectName(v))}</b>${v.w?`　English Gym 実践WS ${v.w}`:''}`; }
+function render(){
+  drawMap();
+  const l=filtered();
+  document.getElementById('ptitle').textContent = st.cat? CN[st.cat] : 'すべての動画';
+  document.getElementById('pcount').textContent = `${l.length}本`;
+  document.getElementById('clear').hidden = !st.cat;
+  const eb=document.getElementById('essbtn'); eb.hidden=!st.cat; if(st.cat) eb.textContent=`「${CN[st.cat]}」のエッセンスを読む`;
+  document.getElementById('total').textContent = all().length;
+  const g=document.getElementById('grid'); g.innerHTML='';
+  if(!l.length){
+    g.innerHTML='<div class="empty">この条件の動画はまだありません。絞り込みをゆるめるか、「動画を追加する」から足してください。</div>';
+  }
+  for(const v of l.slice(0,st.shown)){
+    const b=document.createElement('button'); b.className='v';
+    b.innerHTML=`<div class="thumb"><span class="ph">${esc(v.t.slice(0,36))}</span><img loading="lazy" alt="" src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg" onerror="this.remove()">${v.w?`<span class="ws">WS ${v.w}</span>`:''}${v.d?`<span class="dur">${esc(v.d)}</span>`:''}</div><div class="vt">${esc(v.t)}</div><div class="who">${whoHTML(v)}</div><div class="tags">${tagsHTML(v)}</div>`;
+    b.onclick=()=>openPlayer(v);
+    g.appendChild(b);
+  }
+  document.getElementById('more').hidden = l.length<=st.shown;
+}
+
+// ---------- プレイヤー ----------
+const modal=document.getElementById('modal');
+function openPlayer(v){
+  const p=document.getElementById('mplayer'), url=`https://www.youtube.com/watch?v=${v.id}`;
+  p.innerHTML = CAN_EMBED
+    ? `<iframe src="https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="${esc(v.t)}"></iframe>`
+    : `<div class="ext"><img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="" onerror="this.remove()"><a href="${url}" target="_blank" rel="noopener">YouTubeで再生する${v.d?`（${esc(v.d)}）`:''}</a><p>この画面では埋め込み再生ができないため、YouTubeで開きます</p></div>`;
+  document.getElementById('mtitle').textContent=v.t;
+  document.getElementById('mwho').innerHTML=whoHTML(v);
+  document.getElementById('mtags').innerHTML=tagsHTML(v);
+  document.getElementById('mlink').href=url;
+  const rel=all().filter(x=>x.id!==v.id && x.c.includes(v.c[0])).sort((a,b)=>{
+    const sa=(a.g||[]).some(g=>(v.g||[]).includes(g))?0:1, sb=(b.g||[]).some(g=>(v.g||[]).includes(g))?0:1; return sa-sb||a.o-b.o; }).slice(0,5);
+  const r=document.getElementById('related'); r.innerHTML = rel.length? `<b>同じ弱点のほかの動画</b>`:'';
+  for(const x of rel){ const b=document.createElement('button'); b.innerHTML=`<span>${esc(x.t)}</span><span>${esc(x.d||'')}</span>`; b.onclick=()=>openPlayer(x); r.appendChild(b); }
+  modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); document.getElementById('mclose').focus();
+}
+function closePlayer(){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.getElementById('mplayer').innerHTML=''; }
+document.getElementById('mclose').onclick=closePlayer;
+modal.addEventListener('click',e=>{ if(e.target===modal) closePlayer(); });
+
+// ---------- 追加 ----------
+const addmodal=document.getElementById('addmodal');
+const RULES = {pron:/発音|母音|子音|リズム|イントネーション/, listen:/リスニング|聞き取|聞こえ|音声変化|シャドーイング|ディクテーション/, speak:/スピーキング|英会話|話せ|話す|会話|フレーズ/, vocab:/単語|語彙|言い替え|言い換え|表現|使い分け|イディオム/, gram:/文法|時制|冠詞|関係代名詞|仮定法|不定詞|分詞|前置詞|助動詞|完了形|品詞/, read:/リーディング|読解|長文|多読|精読/, write:/ライティング|英作文|メール|日記|添削/, biz:/ビジネス|会議|プレゼン|交渉|仕事/, exam:/TOEIC|英検|IELTS|TOEFL|Versant|VERSANT/i, method:/勉強法|学習法|独学|習慣|挫折|モチベ|教材/};
+let addCats=new Set();
+function drawAddCats(){
+  const el=document.getElementById('acats'); el.innerHTML='';
+  for(const c of M.cats){
+    const b=document.createElement('button'); b.type='button'; b.className='chip'+(addCats.has(c.k)?' on':''); b.textContent=c.n; b.setAttribute('aria-pressed',addCats.has(c.k));
+    b.onclick=()=>{ addCats.has(c.k)?addCats.delete(c.k):addCats.add(c.k); drawAddCats(); };
+    el.appendChild(b);
+  }
+}
+function drawMine(){
+  const el=document.getElementById('minelist');
+  if(!mine.length){ el.innerHTML=''; return; }
+  el.innerHTML='<b>自分で追加した動画</b>';
+  mine.forEach((v,i)=>{ const d=document.createElement('div'); d.innerHTML=`<span>${esc(v.t)}</span>`; const b=document.createElement('button'); b.type='button'; b.textContent='外す'; b.onclick=()=>{ mine.splice(i,1); saveMine(); st.lects.delete('Z'); drawMine(); buildFilters(); render(); }; d.appendChild(b); el.appendChild(d); });
+  const c=document.createElement('button'); c.type='button'; c.className='btn'; c.style.marginTop='8px'; c.textContent='追加分をコピー';
+  const ta=document.createElement('textarea'); ta.id='exp'; ta.readOnly=true; ta.value=JSON.stringify(mine.map(v=>({url:'https://www.youtube.com/watch?v='+v.id,title:v.t,lecturer:v.h||'',duration:v.d||'',cats:v.c})),null,1);
+  c.onclick=async()=>{ try{ await navigator.clipboard.writeText(ta.value); c.textContent='コピーしました'; }catch(e){ ta.select(); c.textContent='下の欄を選択してコピーしてください'; } };
+  el.appendChild(c); el.appendChild(ta);
+}
+function openAdd(cat){
+  addCats=new Set(cat?[cat]:[]); document.getElementById('addform').reset(); document.getElementById('aerr').textContent='';
+  drawAddCats(); drawMine(); addmodal.classList.add('open'); addmodal.setAttribute('aria-hidden','false'); document.getElementById('aurl').focus();
+}
+function closeAdd(){ addmodal.classList.remove('open'); addmodal.setAttribute('aria-hidden','true'); }
+document.getElementById('addbtn').onclick=()=>openAdd(st.cat);
+document.getElementById('acancel').onclick=closeAdd;
+addmodal.addEventListener('click',e=>{ if(e.target===addmodal) closeAdd(); });
+document.getElementById('atitle').addEventListener('blur',e=>{ const t=e.target.value; let hit=false; for(const k in RULES){ if(RULES[k].test(t)){ addCats.add(k); hit=true; } } if(hit) drawAddCats(); });
+document.getElementById('addform').addEventListener('submit',e=>{
+  e.preventDefault();
+  const err=document.getElementById('aerr');
+  const m=document.getElementById('aurl').value.match(/(?:v=|youtu\.be\/|shorts\/|live\/|embed\/)([\w-]{11})/);
+  if(!m){ err.textContent='YouTubeの動画URLを入れてください（watch?v=… または youtu.be/…）。'; return; }
+  if(all().some(v=>v.id===m[1])){ err.textContent='この動画はすでに載っています。'; return; }
+  if(!addCats.size){ err.textContent='弱点カテゴリを1つ以上選んでください。'; return; }
+  const d=document.getElementById('adur').value.trim(); const ps=d.split(':').map(Number); const s=d&&ps.every(n=>!isNaN(n))?ps.reduce((a,b)=>a*60+b,0):0;
+  mine.push({id:m[1],t:document.getElementById('atitle').value.trim(),l:'Z',h:document.getElementById('alect').value.trim(),d:s?d:'',s,c:[...addCats],g:[],o:9000+mine.length,m:1});
+  saveMine(); closeAdd(); buildFilters(); render();
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(modal.classList.contains('open')) closePlayer(); if(addmodal.classList.contains('open')) closeAdd(); } });
+
+
+// ---------- エッセンス ----------
+const ESS = {
+pron:{lead:"通じない原因の多くは、個々の音よりも「カタカナの拍」で話してしまうことにあります。音の数、子音の扱い、強弱のリズムの3つを直すと、聞き返される回数が減ります。",
+ cap:"カタカナは1文字ごとに母音が入るので拍が増える。英語は母音の数だけ音節になる。",
+ fig:`<svg viewBox="0 0 600 186" role="img" aria-label="strikeはカタカナだと5拍、英語では1音節"><text x="0" y="20" class="fl">カタカナで言うと5拍</text>${['ス','ト','ラ','イ','ク'].map((c,i)=>`<rect x="${i*84}" y="32" width="76" height="44" class="fb"/><text x="${i*84+38}" y="61" class="ft">${c}</text>`).join('')}<text x="0" y="112" class="fl">英語では1音節</text><rect x="0" y="124" width="160" height="44" class="fm"/><text x="80" y="153" class="ft">strike</text><text x="178" y="143" class="fs">母音は i のひとつだけ。</text><text x="178" y="162" class="fs">s・t・r・k のあとに母音を足さない。</text></svg>`,
+ points:[
+ {h:"母音は日本語より多い",p:"日本語の母音は5つ、英語は十数種類あります。「ア」に聞こえる音だけでも複数あり、口の開け方と舌の位置で区別します。",ids:["y4acexhYgjw","fD-hMAFOEtY"]},
+ {h:"子音だけで発音する",p:"語尾や子音の連続に母音を足すと別の単語に聞こえます。LとR、Tの音の変化もここで整理できます。",ids:["W57le8Te3rY","b0v-PgquGi8","q3lH8tLc--4"]},
+ {h:"強い音節を長く、弱いところは短く",p:"英語は強弱でリズムを作ります。全部を同じ強さで言うより、強い音節をはっきり長く言うほうが通じます。",ids:["h7GJeXYdyh0","1mPFl7uXDMU"]},
+ {h:"どこまで目指すかを決める",p:"ネイティブと同じ音である必要はありませんが、通じる範囲には入っている必要があります。自分の発音は録音や書き起こしツールで確かめられます。",ids:["F6kq2Avav0E","iaWqWH0T2lM","ZpvVXUscMdY"]}]},
+listen:{lead:"「聞き取れない」は1つの問題ではありません。音・単語・意味のどの段階で止まっているかで、やるべき練習が変わります。",
+ cap:"止まっている段階ごとに、効く練習が違う。",
+ fig:`<svg viewBox="0 0 600 170" role="img" aria-label="聞き取りの3段階と、それぞれに効く練習">${[['音をとらえる','音そのものが聞こえない','ディクテーション'],['単語だとわかる','つながった音を単語に戻せない','音声変化を知る'],['意味をつかむ','速さに理解が追いつかない','シャドーイング・多聴']].map((r,i)=>`<rect x="${i*212}" y="6" width="176" height="46" class="${i==1?'fm':'fb'}"/><text x="${i*212+88}" y="35" class="ft">${r[0]}</text>${i<2?`<path d="M${i*212+182} 29 h22 m-7 -6 l7 6 l-7 6" class="fa"/>`:''}<text x="${i*212+88}" y="80" class="fs" text-anchor="middle">${r[1]}</text><path d="M${i*212+88} 90 v18 m-6 -7 l6 7 l6 -7" class="fa"/><text x="${i*212+88}" y="134" class="fr" text-anchor="middle">${r[2]}</text>`).join('')}</svg>`,
+ points:[
+ {h:"まず原因を切り分ける",p:"スクリプトを読めば分かる文が聞き取れないなら、原因は音です。読んでも分からないなら語彙か文法です。",ids:["ZVG_7rBrZPA","gUzCzZnXbvw"]},
+ {h:"音はつながり、消え、変わる",p:"get up が「ゲラッ」のように聞こえるのは、連結や脱落といった音声変化のためです。規則を知ると、知っている単語として聞こえるようになります。",ids:["mIXs-dtudZA"]},
+ {h:"書き取って穴を見つける",p:"ディクテーションは、聞こえていない箇所を正確に特定する練習です。書けなかった所がそのまま自分の弱点リストになります。",ids:["WlJs2c4706o","d9ZgcxxFWqs"]},
+ {h:"速さには声を出して慣れる",p:"シャドーイングは音声を追いかけて発話する練習です。何のためにやるのかを決めてから取り組むと効果が出やすくなります。",ids:["JB2aTYJ8vcg","Wb-tTB0F05c","FdotCwhCF3s"]}]},
+speak:{lead:"言葉が出ないのは、英語力より先に「言う内容と順番」が決まっていないことが多いです。簡単な日本語に直し、型に沿って並べ、量をこなします。",
+ cap:"OREO：意見→理由→例→もう一度意見。この順に並べるだけで話が伝わる。",
+ fig:`<div class="stack">${[['O 意見','I think working from home is better.'],['R 理由','Because I can save commuting time.'],['E 例','For example, I use that hour to study English.'],['O 意見','So I prefer working from home.']].map((r,i)=>`<div class="srow${i%3==0?' hi':''}"><b>${r[0]}</b><span>${r[1]}</span></div>`).join('')}</div>`,
+ points:[
+ {h:"難しい日本語を、簡単な日本語にしてから英語に",p:"「検討します」をそのまま訳そうとせず、「考えてみます」に直せば I'll think about it. で言えます。",ids:["q3A4lciS9xs","1-9LavbM9Ao"]},
+ {h:"型に沿って並べる",p:"意見、理由、例、まとめの順に話すと、短い文でも筋が通ります。1つの話題を長く話す練習にもなります。",ids:["7kisVbgbttM","Ldr_t4qf738","XvdeEej5pvM"]},
+ {h:"ひとりで口に出す量を増やす",p:"ひとりごとや瞬間英作文は、相手がいなくてもできる発話練習です。知っている文法をすぐ口に出せる状態にします。",ids:["jBt_eo7l6vg","4U3XaiCu9PM","qJmK6yIbWd4"]},
+ {h:"会話は「答え＋ひとこと＋質問」で続ける",p:"答えだけで止まると会話が終わります。ひとこと足して質問を返すと、やり取りが続きます。沈黙はつなぎ言葉で埋められます。",ids:["-dJejYVA70E","CWH81f0Iw-M","ui9jHVYDu0Q"]},
+ {h:"オンライン英会話は準備と復習で差がつく",p:"受けるだけでは伸びにくいので、話すネタを用意し、言えなかったことを次回までに言えるようにします。",ids:["tCOyPxkUgGY","Wt2oyvEv6U4","NnT5gMYIj3U"]}]},
+vocab:{lead:"語彙は「覚える」と「使い回す」の2本立てです。忘れる前提で復習の間隔を決め、基本動詞と言い替えで表現の幅を広げます。",
+ cap:"復習するたびに、忘れるスピードはゆるやかになる。",
+ fig:`<svg viewBox="0 0 600 200" role="img" aria-label="復習するたびに忘れにくくなる忘却曲線"><path d="M40 20 V170 H590" class="fa"/><text x="34" y="26" class="fs" text-anchor="end">記憶</text><path d="M40 30 Q70 130 150 146" class="fc"/><path d="M150 146 V30" class="fd"/><path d="M150 30 Q210 100 310 114" class="fc"/><path d="M310 114 V30" class="fd"/><path d="M310 30 Q420 62 585 76" class="fc"/><text x="40" y="190" class="fs">覚えた日</text><text x="150" y="190" class="fr" text-anchor="middle">翌日に復習</text><text x="310" y="190" class="fr" text-anchor="middle">1週間後に復習</text><text x="585" y="190" class="fs" text-anchor="end">1か月後</text></svg>`,
+ points:[
+ {h:"間隔をあけて何度も会う",p:"一度に長く眺めるより、日をあけて短く何度も確認するほうが残ります。単語帳は覚えたものと覚えていないものを分けて回します。",ids:["6HMdGzYiU64","s8ju_dj8Ynw"]},
+ {h:"基本動詞で言える範囲を広げる",p:"have、get、take、make などの基本動詞は組み合わせで多くの意味を表せます。難しい単語を探す前に、基本動詞で言えないかを考えます。",ids:["yqY2jS345x4","kyySMHHIkKw"]},
+ {h:"いつもの言い方に、言い替えを足す",p:"I think や Thank you ばかりになるときは、同じ意味の言い方をいくつか持っておくと単調さが消えます。",ids:["1lKqBDNBM8U","YbcmIazd2PM","rxF0QOjusx0","isYqfAP3vFU"]},
+ {h:"似た語は場面で使い分ける",p:"talk、speak、tell、say のような似た語は、あとに何が続くかと、どんな場面かで区別します。",ids:["U-dOKlR4Rqw","qjdcjCxnFO4","G-idd4Ukfrc"]}]},
+gram:{lead:"文法のモヤモヤは、用語を覚えていないからではなく、全体の地図がないことから来ます。時制、冠詞、文の骨格の3つを押さえると、細かい規則がつながります。",
+ cap:"時制は「いつ（過去・現在・未来）」×「どう見るか（4つ）」の12マス。現在完了は「過去のことを今の話として言う」マス。",
+ fig:`<table class="tbl"><tr><th></th><th>過去</th><th>現在</th><th>未来</th></tr><tr><th>単純</th><td>did</td><td>do</td><td>will do</td></tr><tr><th>進行</th><td>was doing</td><td>am doing</td><td>will be doing</td></tr><tr><th>完了</th><td>had done</td><td class="hi">have done</td><td>will have done</td></tr><tr><th>完了進行</th><td>had been doing</td><td>have been doing</td><td>will have been doing</td></tr></table>`,
+ points:[
+ {h:"時制は12マスで整理する",p:"形を1つずつ覚えるより、表のどのマスかで考えると迷いません。現在完了と過去形の違いも、マスの位置で説明できます。",ids:["wBDLsV_vjPk","bY4M_Yo5EFE","W0vWiS2-zXQ","ZDDReH9zd8s"]},
+ {h:"冠詞は「相手がどれか分かるか」で決まる",p:"a はたくさんある中の1つ、the は相手と「あれのこと」と共有できる1つです。数えられるかどうかも、形の輪郭があるかで考えます。",ids:["VIrVX6969No","IJBHe3fBF_8","wNesP2XiFHs","OgIEef8b0ms"]},
+ {h:"文の骨格は主語と動詞",p:"どんなに長い文も、主語と動詞を見つければ骨格が見えます。品詞は、単語が文のどこに置けるかを決めるルールです。",ids:["yVfqsBdipvc","cgn3HF11c00","Yr3pm2jiQLw","jxQEWWWILng"]},
+ {h:"名詞は後ろから説明を足せる",p:"関係代名詞、分詞、to不定詞は、どれも名詞の後ろに説明を足す道具です。日本語と語順が逆になる点が、つまずきやすい所です。",ids:["6NMJCe7TOKQ","94kgAOk6yWY","-uZUMNthBI0","_e1xGfQmJoU"]},
+ {h:"気持ちや距離感を表す形",p:"助動詞は話し手の判断を、仮定法は現実との距離を表します。形のルールは少なく、作り方は決まっています。",ids:["MlqDoLLQQhQ","2XjWCqaFzTI","ECieVnzRV7Y"]}]},
+read:{lead:"読むのが遅い原因は、日本語の語順に直そうとして後ろから戻る「返り読み」です。意味のかたまりごとに、前から順に理解します。",
+ cap:"かたまりで区切り、左から右へ一度だけ読む。戻らない。",
+ fig:`<div class="chunks">${[['I bought a book','私は本を買った'],['that my friend recommended','友だちがすすめてくれた'],['at the store','その店で'],['near the station.','駅の近くの']].map((r,i)=>`<div class="chunk"><i>${i+1}</i><b>${r[0]}</b><span>${r[1]}</span></div>`).join('')}</div>`,
+ points:[
+ {h:"かたまりで区切って前から読む",p:"前置詞や関係詞の前で区切り、かたまりごとに意味を取ります。きれいな日本語に訳す必要はありません。",ids:["gP7z3DpYnOU"]},
+ {h:"精読した素材を何度も読む",p:"公式問題集のように質の良い英文を、分からない所がなくなるまで読み込み、同じ文を繰り返し読むと速度が上がります。",ids:["GJrcOEGp-VM","wiKgh4ewOQg"]},
+ {h:"試験では時間配分も実力のうち",p:"最後まで解き終えるには、解く順番と1問にかける時間を先に決めておきます。",ids:["5B8JXMtqpkA"]}]},
+write:{lead:"書けないときは、英語より先に段落の型を決めます。主張を1文目に置き、理由と例で支え、最後にまとめます。書いたあとは自分で直せる手順を持ちます。",
+ cap:"1段落に主張は1つ。1文目を読めば言いたいことが分かるように書く。",
+ fig:`<div class="stack">${[['主張','この段落で言いたいことを1文で'],['理由1 ＋ 例','First, ... For example, ...'],['理由2 ＋ 例','Second, ... For instance, ...'],['まとめ','For these reasons, ...']].map((r,i)=>`<div class="srow${i%3==0?' hi':''}"><b>${r[0]}</b><span>${r[1]}</span></div>`).join('')}</div>`,
+ points:[
+ {h:"型を先に覚える",p:"英検やIELTSのライティングは、構成の型と定番表現を持っているかで書く速さが変わります。",ids:["sqQzMh50qMM","GR7OsIVZIQY","H8XSK2vmNq4"]},
+ {h:"very を別の1語に置き換える",p:"very good を excellent にするように、強調を1語で言えると文が引き締まります。",ids:["isYqfAP3vFU","n9rJs9BESEg"]},
+ {h:"自分で添削する手順を持つ",p:"英語日記は書きっぱなしにせず、主語と動詞、時制、冠詞の順に見直します。ツールで確認する方法もあります。",ids:["AggPoyf6PD0"]},
+ {h:"仕事の文章は用件を先に",p:"メールは件名と1行目で用件が伝わるように書きます。定型の言い回しを持っておくと速く書けます。",ids:["B-PKGMmbPEM","ZMVT22fqSWM"]}]},
+biz:{lead:"仕事の英語は、難しい単語より「結論を先に言うこと」と「丁寧さの調整」で印象が決まります。会議やプレゼンは定型フレーズで乗り切れます。",
+ cap:"同じ依頼でも、文が長く、形が遠回しになるほど丁寧になる。",
+ fig:`<div class="ladder">${['Send me the file.','Can you send me the file?','Could you send me the file?','Would you mind sending me the file?','I was wondering if you could send me the file.'].map((s,i)=>`<div style="width:${52+i*12}%" class="${i==4?'hi':''}">${s}</div>`).join('')}<p><span>直接的</span><span>丁寧</span></p></div>`,
+ points:[
+ {h:"丁寧さは形で調整する",p:"命令形はきつく聞こえます。相手との関係や頼む内容の重さに合わせて、遠回しな形を選びます。断るときや反対するときも同じです。",ids:["iHHCsqdjqfc","U0xErFqnl9w"]},
+ {h:"会議は役割ごとのフレーズで動かす",p:"聞き返す、確認する、話に入る、まとめる。場面ごとの決まり文句を持っていれば、聞き取れない所があっても会議についていけます。",ids:["Q776ZoaCj9w","FdotCwhCF3s"]},
+ {h:"プレゼンは構成が8割",p:"最初に結論と全体の流れを伝え、各パートの切り替えを言葉で示します。",ids:["C5d3zRMJeEY","7kisVbgbttM"]},
+ {h:"シンプルな英語で十分伝わる",p:"相手もネイティブとは限りません。短い文と基本的な単語で、誤解のない英語を目指します。",ids:["reTjjoUzEzA","1-9LavbM9Ao","B-PKGMmbPEM"]}]},
+exam:{lead:"点が伸びないときは、まずその試験が何を測っているかを確かめます。試験ごとに必要な力が違うので、対策も変わります。",
+ cap:"試験ごとに測る技能が違う。目的に合う試験を選ぶ。",
+ fig:`<table class="tbl ex"><tr><th></th><th>聞く</th><th>読む</th><th>話す</th><th>書く</th></tr><tr><th>TOEIC L&amp;R</th><td>●</td><td>●</td><td></td><td></td></tr><tr><th>英検（3級以上）</th><td>●</td><td>●</td><td>●</td><td>●</td></tr><tr><th>IELTS</th><td>●</td><td>●</td><td>●</td><td>●</td></tr><tr><th>Versant スピーキング</th><td>●</td><td></td><td class="hi">●</td><td></td></tr></table>`,
+ points:[
+ {h:"試験が測る力を知る",p:"どの試験にも共通して必要な力と、その試験だけの形式があります。独学に向く試験かどうかも選ぶ基準になります。",ids:["fcVr-W9-jJM","USm5WuNrsfw"]},
+ {h:"公式問題集を使い倒す",p:"新しい問題集を次々解くより、公式問題集を音読やディクテーションの素材にして繰り返すほうが力がつきます。間違えた問題は原因を分けて記録します。",ids:["GJrcOEGp-VM","d9ZgcxxFWqs","3TeYMAQrqoA","mcni00mYITQ"]},
+ {h:"英検・IELTSは書く型と話す型",p:"ライティングとスピーキングは、構成の型と接続表現を準備しておくと安定します。",ids:["Vsz9RNvyiIU","sqQzMh50qMM","0DRb2Wu-FxY","9Udf7K7CwGY"]},
+ {h:"Versantは形式に慣れるのが先",p:"音声だけで進む試験なので、初めて受ける前に出題形式を知っておくと実力を出しやすくなります。",ids:["8u9KKAVtezE","AOaLJ7D_D9E","Q-45P2SYdVU"]}]},
+method:{lead:"続かないのは意志の弱さではなく、目的と方法が合っていないことが多いです。目的から逆算し、期間を区切り、難しさを調整します。",
+ cap:"仮に1000時間が必要だとすると、1日の学習時間で到達までの期間はこれだけ変わる。",
+ fig:`<div class="bars">${[['1日30分','約5年半',100],['1日1時間','約2年9か月',50],['1日3時間','約11か月',17]].map((r,i)=>`<div><b>${r[0]}</b><i style="width:${r[2]*0.62}%" class="${i==2?'hi':''}"></i><span>${r[1]}</span></div>`).join('')}</div>`,
+ points:[
+ {h:"目的から逆算して方法を選ぶ",p:"会話したいのか、試験に受かりたいのかで、やることは変わります。手段が目的になっていないかを確かめます。",ids:["vNGZuCm5iU0","MOEqwaMxboU","gjMFNBPSZCA"]},
+ {h:"細く長くより、期間を区切って集中",p:"同じ総時間でも、短い期間に集めたほうが前回の内容を忘れずに積み上げられます。",ids:["sa0Ls11oeU8","mpVjhd2ORz0"]},
+ {h:"挫折の原因は教材の難しさと使い道",p:"簡単すぎても難しすぎても続きません。学んだことを使う場面があるかどうかも、続くかどうかを分けます。",ids:["Cpa5RJDMGVs","7f8nZB7ltRw","F47YwaMt9ow","bvg18q-m4uI"]},
+ {h:"研究とAIを味方につける",p:"第二言語習得の研究は、効果が確かめられた方法とそうでない方法を教えてくれます。AI英会話は練習量を増やす道具として使えます。",ids:["WAUpPCU-X6k","u5y8DtP1Gqk","NOB2jwC_sQs"]},
+ {h:"全体像をつかむ",p:"文法、語彙、発音にどれだけ時間を配るか。最初に全体の配分を決めておくと迷いが減ります。",ids:["UKy7VLWVNrs","0hmDs_p6CqI"]}]}
+};
+
+const wrapEl=document.querySelector('.wrap'), essEl=document.getElementById('ess');
+function showEss(k){
+  const e=ESS[k], V=all(), n=V.filter(v=>v.c.includes(k)).length;
+  let h=`<nav class="enav" aria-label="カテゴリ"><a class="back" href="#map">マップに戻る</a>${M.cats.map(c=>`<a href="#${c.k}"${c.k===k?' class="on" aria-current="page"':''}>${c.n}</a>`).join('')}</nav>`;
+  h+=`<h2>${CN[k]}のエッセンス<small>${esc(M.cats.find(c=>c.k===k).d)}人へ</small></h2><p class="lead">${e.lead}</p><figure>${e.fig}<figcaption>${e.cap}</figcaption></figure>`;
+  e.points.forEach((p,i)=>{ h+=`<section class="pt"><h3>${p.h}</h3><p>${p.p}</p><div class="vl" data-i="${i}"></div></section>`; });
+  h+=`<div class="eend"><button class="btn solid" id="eall">${CN[k]}の動画を${n}本すべて見る</button><a class="btn" href="#map" style="text-decoration:none">マップに戻る</a></div><p class="enote">このページの要点と図は、一般的な英語学習の知識をもとにClaudeがまとめたもので、各動画の内容を書き起こしたものではありません。詳しい説明は、それぞれの動画でご覧ください。</p>`;
+  essEl.innerHTML=h;
+  essEl.querySelectorAll('.vl').forEach(el=>{
+    for(const id of e.points[el.dataset.i].ids){ const v=V.find(x=>x.id===id); if(!v) continue;
+      const b=document.createElement('button'); b.innerHTML=`<span class="pl">動画</span><span class="tt">${esc(v.t)}</span><span class="mt">${esc(lectName(v))}　${esc(v.d)}</span>`; b.onclick=()=>openPlayer(v); el.appendChild(b); }
+  });
+  document.getElementById('eall').onclick=()=>{ st.cat=k; st.shown=PAGE; location.hash='map'; };
+  wrapEl.hidden=true; essEl.hidden=false; window.scrollTo(0,0);
+}
+function route(){
+  const k=location.hash.slice(1);
+  document.getElementById('total').textContent = all().length;
+  if(ESS[k]) showEss(k); else { essEl.hidden=true; wrapEl.hidden=false; render(); }
+}
+window.addEventListener('hashchange',route);
+document.getElementById('essbtn').onclick=()=>{ if(st.cat) location.hash=st.cat; };
+
+// ---------- 起動 ----------
+const q=document.getElementById('q'); let tm;
+q.oninput=()=>{ clearTimeout(tm); tm=setTimeout(()=>{ st.q=q.value.trim(); st.shown=PAGE; render(); },150); };
+document.getElementById('len').onchange=e=>{ st.len=e.target.value; st.shown=PAGE; render(); };
+document.getElementById('sort').onchange=e=>{ st.sort=e.target.value; render(); };
+document.getElementById('more').onclick=()=>{ st.shown+=PAGE; render(); };
+document.getElementById('clear').onclick=()=>{ st.cat=null; render(); };
+document.getElementById('srclist').innerHTML=M.sources.map(x=>`<li>出典：<a href="${x.url}" target="_blank" rel="noopener">${esc(x.n)}</a></li>`).join('');
+buildFilters(); route();
+</script>
+</body>
+</html>
